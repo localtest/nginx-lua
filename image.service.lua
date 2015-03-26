@@ -35,9 +35,48 @@ local function trim(_str)
 	return (string.gsub(_str, "^%s*(.-)%s*$", "%1"))
 end
 
+local function empty(_str)
+	if (string.len(_str) < 1) then
+		return true;
+	end
+	return false;
+end
+
 local args = {}
 local file_args = {}
 local is_have_file_param = false
+
+
+local request_args = ngx.req.get_uri_args()
+
+-- purge the uri
+local new_uri = '';
+local request_uri_seg = explode(ngx.var.request_uri, '/');
+for i,v in ipairs(request_uri_seg) do
+	if empty(v) ~= true then
+		if empty(new_uri) then
+			new_uri = v;
+		else
+			new_uri = new_uri .. '/' .. v;
+		end
+	end
+end
+
+-- Todo:
+-- 	1.add the support of resource directory
+--	2.add the config of bucket
+new_uri = explode(new_uri, '/');
+local bucket = table.remove(new_uri, 1);
+local resource = table.remove(new_uri, 1);
+
+-- Todo:
+--	1.add the access control
+if bucket ~= 'test' then
+	ngx.say("Unknown Bucket");
+	-- Todo: output 403 header
+	ngx.exit(403);
+end
+
 
 local image_root = '';
 -- Todo: Check Filename From URI
