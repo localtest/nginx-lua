@@ -82,10 +82,8 @@ end
 
 local image_root = '';
 -- Todo: Check Filename From URI
-local fileName = '';
-local destImg = image_root .. '/' .. fileName;
+local destImg = image_root .. '/' .. resource;
 
--- Todo: name the tempotary based on request fileName
 local tmpPath = '/tmp';
 local resty_sha1 = require "resty.sha1";
 local sha1 = resty_sha1:new();
