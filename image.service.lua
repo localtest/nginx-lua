@@ -51,6 +51,7 @@ local request_args = ngx.req.get_uri_args()
 
 -- purge the uri
 local new_uri = '';
+local str_new_uri = '';
 local request_uri_seg = explode(ngx.var.request_uri, '/');
 for i,v in ipairs(request_uri_seg) do
 	if empty(v) ~= true then
@@ -61,6 +62,7 @@ for i,v in ipairs(request_uri_seg) do
 		end
 	end
 end
+str_new_uri = new_uri;
 
 -- Todo:
 -- 	1.add the support of resource directory
@@ -85,8 +87,21 @@ local destImg = image_root .. '/' .. fileName;
 
 -- Todo: name the tempotary based on request fileName
 local tmpPath = '/tmp';
-math.randomseed(os.time());
-local tmpImg = tmpPath .. '/image_service_' .. math.random();
+local resty_sha1 = require "resty.sha1";
+local sha1 = resty_sha1:new();
+local ok = sha1:update(str_new_uri);
+if not ok then
+	-- Todo: change To Write Log
+	ngx.say("Internal Error: xxx");
+	ngx.exit(500);
+    return
+end
+-- binary digest
+local digest = sha1:final();
+local str = require "resty.string"
+-- output: "sha1: b7e23ec29af22b0b4e41da31e868d57226121c84"
+local sha1_digest = str.to_hex(digest);
+local tmpImg = tmpPath .. '/image_service_' .. sha1_digest;
 
 local headers = ngx.req.get_headers();
 local request_method = ngx.var.request_method;
