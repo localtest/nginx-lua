@@ -1,22 +1,28 @@
 --[[
 
-server {
-	listen       80;
-	server_name  localhost;
+http {
 
+	...
 
-	location /proxy/ {
-		internal;
-		#rewrite ^/proxy/(https?)/([^/]+)/(\d+)/(.*)     /$4 break;
-		rewrite ^/proxy/(https?)/(.*)/(\d+)/(.*)     /$4 break;
-		return 400;
-		proxy_set_header Host $host:$3;
-		proxy_pass      $1://$2:$3;
-	}
-	location / {
-		default_type 'text/html';
-		lua_code_cache off;
-		content_by_lua_file /path/to/conf/nginx.lua;
+	resolver 114.114.114.114;
+
+	server {
+		listen       80;
+		server_name  localhost;
+
+		location /proxy/ {
+			internal;
+			#rewrite ^/proxy/(https?)/([^/]+)/(\d+)/(.*)     /$4 break;
+			rewrite ^/proxy/(https?)/(.*)/(\d+)/(.*)     /$4 break;
+			return 400;
+			proxy_set_header Host $host:$3;
+			proxy_pass      $1://$2:$3;
+		}
+		location / {
+			default_type 'text/html';
+			lua_code_cache off;
+			content_by_lua_file /path/to/conf/nginx.lua;
+		}
 	}
 }
 
